@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from 'sonner';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <QueryClientProvider client={queryClient}>
+              <Toaster richColors expand closeButton />
               <ThemeAndFontProvider>{children}</ThemeAndFontProvider>
             </QueryClientProvider>
           </PersistGate>

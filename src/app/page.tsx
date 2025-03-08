@@ -1,18 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import SearchBox from "./components/SearchBar";
 import { useQuery } from "@tanstack/react-query";
 import WordData, { ErrorResponse } from "@/types";
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Clock } from "lucide-react";
 import Meaning from "@/components/Meaning";
 import AudioButton from "./components/AudioButton";
+import HistoryModal from "./components/HistoryModal";
+import { toast } from "sonner";
+import Swal from "sweetalert2";
+
 
 export default function Home() {
   const [searchValue, setSearchValue] = useState("");
-  const [searched, setSearched] = useState(false); // Para controlar cuándo se busca
+  const [searched, setSearched] = useState(false);
+  const [history, setHistory] = useState<{ word: string; timestamp: string }[]>([]);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+
+  // Cargar historial de localStorage al montar el componente
+  useEffect(() => {
+    const storedHistory = localStorage.getItem("searchHistory");
+    if (storedHistory) {
+      try {
+        const parsedHistory = JSON.parse(storedHistory);
+        if (Array.isArray(parsedHistory)) {
+          setHistory(parsedHistory);
+        }
+      } catch (error) {
+        console.error("Error parsing search history:", error);
+      }
+    }
+  }, []);
 
   const api = `https://api.dictionaryapi.dev/api/v2/entries/en/${searchValue}`;
 
@@ -20,11 +41,11 @@ export default function Home() {
     isLoading,
     error,
     refetch,
-    data: wordData
+    data: wordData,
   } = useQuery<WordData[], ErrorResponse>({
     queryKey: ["wordData"],
     queryFn: () => fetch(api).then((res) => res.json()),
-    enabled: false, // 🚀 No ejecutar la consulta automáticamente al cargar
+    enabled: false, // No ejecutar la consulta automáticamente
   });
 
   const data: WordData | null = wordData ? wordData[0] : null;
@@ -33,12 +54,20 @@ export default function Home() {
     e.preventDefault();
 
     if (!searchValue.trim()) {
-      alert("Please enter a word to search."); // 🚀 Alerta si el input está vacío
+      toast.error("Please enter a word to search.");
       return;
     }
 
     setSearched(true);
-    refetch(); // 🚀 Buscar solo cuando el usuario presiona Enter o el botón
+    refetch();
+
+    // Guardar en historial solo si la palabra no está repetida
+    const newHistoryItem = { word: searchValue, timestamp: new Date().toLocaleString() };
+    if (!history.some((item) => item.word === searchValue)) {
+      const updatedHistory = [newHistoryItem, ...history].slice(0, 10);
+      setHistory(updatedHistory);
+      localStorage.setItem("searchHistory", JSON.stringify(updatedHistory));
+    }
   }
 
   if (isLoading)
@@ -56,11 +85,17 @@ export default function Home() {
         <Navbar />
       </div>
 
-      <SearchBox
-        onChange={(e) => setSearchValue(e.target.value)}
-        onSubmit={handleSubmit}
-        value={searchValue}
-      />
+      <div className="flex items-center w-full">
+
+        <button
+          title="Search History"
+          onClick={() => setIsHistoryOpen(true)}
+          className="mr-2 p-2 rounded-lg hover:bg-[#A445ED] dark:hover:bg-[#A445ED] transition cursor-pointer"
+        >
+          <Clock className="w-6 h-6 text-gray-500 hover:text-white dark:text-gray-300" />
+        </button>
+        <SearchBox onChange={(e) => setSearchValue(e.target.value)} onSubmit={handleSubmit} value={searchValue} />
+      </div>
 
       {!searched ? (
         <div className="flex flex-col gap-5 mt-8 text-center">
@@ -101,6 +136,34 @@ export default function Home() {
           ) : null}
         </section>
       )}
+
+      {isHistoryOpen && (
+        <HistoryModal
+          history={history}
+          onClose={() => setIsHistoryOpen(false)}
+          onClearHistory={() => {
+            Swal.fire({
+              title: "Are you sure?",
+              text: "Your search history will be deleted permanently.",
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#A445ED",
+              cancelButtonColor: "#d33",
+              confirmButtonText: "Yes, clear it!",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                setHistory([]); 
+                localStorage.removeItem("searchHistory"); 
+                setIsHistoryOpen(false); 
+
+                toast.success("Search history cleared successfully.");
+              }
+            });
+          }}
+        />
+      )}
+
     </main>
+
   );
 }
