@@ -20,14 +20,24 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Component to apply theme and font dynamically
+// Componente para aplicar tema y fuente dinámicamente
 function ThemeAndFontProvider({ children }: { children: React.ReactNode }) {
   const theme = useSelector((state: RootState) => state.theme.theme);
   const font = useSelector((state: RootState) => state.theme.font);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
-    document.body.className = `${font === "mono" ? geistMono.variable : geistSans.variable} antialiased`;
+
+    // 🔥 Limpiar clases de fuente antes de agregar la nueva
+    document.body.classList.remove("font-sans", "font-serif", "font-mono");
+
+    if (font === "mono") {
+      document.body.classList.add("font-mono", geistMono.variable);
+    } else if (font === "serif") {
+      document.body.classList.add("font-serif");
+    } else {
+      document.body.classList.add("font-sans", geistSans.variable);
+    }
   }, [theme, font]);
 
   return <>{children}</>;
@@ -38,7 +48,7 @@ const queryClient = new QueryClient();
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
+      <body className="font-sans">
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <QueryClientProvider client={queryClient}>
