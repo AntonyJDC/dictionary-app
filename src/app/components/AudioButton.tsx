@@ -41,7 +41,7 @@ function AudioButton({ media }: Props) {
             This browser does not support this file
           </audio>
           <button
-            className="bg-[#e9d0fa] lg:h-16 lg:w-16 h-10 w-10 sm:w-14 sm:h-14 md:h-14 md:w-14 rounded-full flex justify-center items-center hover:bg-[#e3bffa] dark:bg-[#3d1a53] dark:hover:bg-[#4e2169] hover:transition hover:duration-200 ease-in-out"
+            className="hover:cursor-pointer bg-[#e9d0fa] lg:h-16 lg:w-16 h-10 w-10 sm:w-14 sm:h-14 md:h-14 md:w-14 rounded-full flex justify-center items-center hover:bg-[#daa9f8] dark:bg-[#3d1a53] dark:hover:bg-[#4e2169] hover:transition hover:duration-200 ease-in-out"
             onClick={handlePlayPause}
           >
             {isPlaying ? (
