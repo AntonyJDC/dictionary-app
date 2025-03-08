@@ -9,7 +9,7 @@ type Props = {
 
 export default function SearchBox({ value, onChange, onSubmit }: Props) {
   return (
-    <form onSubmit={onSubmit} className="relative flex items-center">
+    <form onSubmit={onSubmit} className="relative w-full flex items-center">
       <input
         value={value}
         onChange={onChange}
