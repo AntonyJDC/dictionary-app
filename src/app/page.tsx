@@ -51,7 +51,7 @@ export default function Home() {
   if (error) return "An error has occurred: " + error.message;
 
   return (
-    <main className="max-w-[720px] flex flex-col gap-10 mx-auto py-10 px-4">
+    <main className="max-w-[720px] flex flex-col gap-10 mx-auto py-5 md:py-10 px-4">
       <div className="w-full flex justify-between">
         <Navbar />
       </div>
@@ -63,14 +63,14 @@ export default function Home() {
       />
 
       {!searched ? (
-        <div className="flex flex-col gap-5 text-center">
-          <p className="text-7xl">🔍</p>
+        <div className="flex flex-col gap-5 mt-8 text-center">
+          <p className="text-5xl">🔍</p>
           <h2 className="text-xl font-bold">Search for a word!</h2>
           <p className="text-lg">{`Type a word and press Enter or click the search icon.`}</p>
         </div>
       ) : !data ? (
-        <div className="flex flex-col gap-5 text-center">
-          <p className="text-7xl">😕</p>
+        <div className="flex flex-col gap-5 mt-8 text-center">
+          <p className="text-5xl">😕</p>
           <h2 className="text-xl font-bold">No Definitions Found</h2>
           <p className="text-lg">{`Sorry pal, we couldn't find definitions for the word you were looking for.`}</p>
         </div>
