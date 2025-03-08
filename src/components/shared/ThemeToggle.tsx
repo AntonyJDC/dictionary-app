@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleTheme } from "@/store/themeSlice";
+import { toggleTheme, setTheme } from "@/store/themeSlice";
 import { RootState } from "@/store";
 import { Switch } from "@/components/ui/switch";
 import { Moon, Sun } from "lucide-react";
@@ -9,6 +10,18 @@ import { Moon, Sun } from "lucide-react";
 export default function ThemeToggle() {
   const dispatch = useDispatch();
   const theme = useSelector((state: RootState) => state.theme.theme);
+
+  // Detecta cambios en la preferencia del sistema
+  useEffect(() => {
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      dispatch(setTheme(e.matches ? "dark" : "light"));
+    };
+
+    systemTheme.addEventListener("change", handleChange);
+    return () => systemTheme.removeEventListener("change", handleChange);
+  }, [dispatch]);
 
   return (
     <div className="flex items-center gap-4">
